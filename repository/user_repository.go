@@ -28,6 +28,12 @@ func (s UserRepository) GetUser(userid uuid.UUID) (*entity.User, error) {
 	return user, nil
 }
 
+func (s UserRepository) CreateUser(user *entity.User) *entity.User {
+	s.DB.Create(&user)
+	s.DB.Save(&user)
+	return user
+}
+
 func (s UserRepository) UpdateUser(id uuid.UUID, upuser *entity.User) (*entity.User, error) {
 	user := new(entity.User)
 	if result := s.DB.First(&user, id); result.Error != nil {
@@ -60,10 +66,4 @@ func (s UserRepository) DeleteUser(id uuid.UUID) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Ensure id is correct")
 	}
 	return nil
-}
-
-func (s UserRepository) CreateUser(user *entity.User) *entity.User {
-	s.DB.Create(&user)
-	s.DB.Save(&user)
-	return user
 }

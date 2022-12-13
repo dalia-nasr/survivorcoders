@@ -7,23 +7,18 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/matthewhartstonge/argon2"
-	"gorm.io/gorm"
 	"survivorcoders.com/user-go/entity"
 	"survivorcoders.com/user-go/utils"
 )
 
-type AuthRepository struct {
-	DB *gorm.DB
-}
-
-func (s AuthRepository) CreateToken(user_id uuid.UUID) entity.Token {
+func (s UserRepository) CreateToken(user_id uuid.UUID) entity.Token {
 	token := entity.Token{UserId: user_id, Type: "invalid", ActivatedAt: time.Now(), ExpiredAt: time.Now().AddDate(1, 0, 0)}
 	s.DB.Create(&token)
 	s.DB.Save(&token)
 	return token
 }
 
-func (s AuthRepository) CreatePassword(token_id uuid.UUID, upuser *entity.User) (*entity.User, error) {
+func (s UserRepository) CreatePassword(token_id uuid.UUID, upuser *entity.User) (*entity.User, error) {
 	token := new(entity.Token)
 	if result := s.DB.First(&token, token_id); result.Error != nil {
 		return nil, echo.NewHTTPError(http.StatusNotFound, result.Error)
@@ -45,7 +40,7 @@ func (s AuthRepository) CreatePassword(token_id uuid.UUID, upuser *entity.User) 
 	return user, nil
 }
 
-func (s AuthRepository) Login(userauth *entity.User) (*entity.Token, error) {
+func (s UserRepository) Login(userauth *entity.User) (*entity.Token, error) {
 	user := new(entity.User)
 	if result := s.DB.Where("email = ?", userauth.Email).First(&user); result.Error != nil {
 		return nil, echo.NewHTTPError(http.StatusNotFound, result.Error)

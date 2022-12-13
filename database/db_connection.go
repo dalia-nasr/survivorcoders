@@ -11,8 +11,9 @@ import (
 	"survivorcoders.com/user-go/repository"
 )
 
-func ConnectDb() (controller.UserController, controller.AuthController) {
-	dbConnection, err := gorm.Open(postgres.Open(os.Getenv("POSTGRES_LINK")), &gorm.Config{})
+func ConnectDb() controller.UserController {
+	dblink := os.Getenv("POSTGRES_LINK")
+	dbConnection, err := gorm.Open(postgres.Open(dblink), &gorm.Config{})
 	if err != nil {
 		log.Fatal("error configuring the database: ", err)
 	}
@@ -22,10 +23,5 @@ func ConnectDb() (controller.UserController, controller.AuthController) {
 			DB: dbConnection,
 		},
 	}
-	authController := controller.AuthController{
-		AuthRepository: repository.AuthRepository{
-			DB: dbConnection,
-		},
-	}
-	return userController, authController
+	return userController
 }
